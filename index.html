@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rajnigandha Chat</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #121212; color: #fff; margin: 0; padding: 0; display: flex; flex-direction: column; height: 100vh; }
+        #chat-box { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .message { background: #1e1e1e; padding: 10px; border-radius: 8px; max-width: 80%; word-break: break-word; }
+        .my-message { background: #005c4b; align-self: flex-end; }
+        #input-container { display: flex; padding: 10px; background: #1f1f1f; }
+        #message-input { flex: 1; padding: 10px; border: none; border-radius: 4px; outline: none; background: #2a2a2a; color: #fff; }
+        #send-btn { padding: 10px 20px; border: none; background: #00a884; color: white; border-radius: 4px; margin-left: 8px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div id="chat-box"></div>
+    <div id="input-container">
+        <input type="text" id="message-input" placeholder="Type a message...">
+        <button id="send-btn">Send</button>
+    </div>
+
+    <script>
+        const ws = new WebSocket('wss://rajnigandha-server.onrender.com');
+        const chatBox = document.getElementById('chat-box');
+        const messageInput = document.getElementById('message-input');
+        const sendBtn = document.getElementById('send-btn');
+
+        ws.onmessage = function(event) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'message';
+            msgDiv.textContent = event.data;
+            chatBox.appendChild(msgDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        };
+
+        function sendMessage() {
+            const text = messageInput.value.trim();
+            if (text) {
+                ws.send(text);
+                const msgDiv = document.createElement('div');
+                msgDiv.className = 'message my-message';
+                msgDiv.textContent = text;
+                chatBox.appendChild(msgDiv);
+                chatBox.scrollTop = chatBox.scrollHeight;
+                messageInput.value = '';
+            }
+        }
+
+        sendBtn.onclick = sendMessage;
+        messageInput.onkeypress = function(e) {
+            if (e.key === 'Enter') sendMessage();
+        };
+    </script>
+</body>
+</html>
+
